@@ -24,12 +24,12 @@ export class MiniExpress {
         return res;
       };
 
-      res.json = (data) => {
+      res.json = (body) => {
         res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify(data)); // work well if data size <= high  WaterMark (16kb)
+        res.end(JSON.stringify(body)); // work well if body size <= high  WaterMark (16kb)
       };
 
-      res.bigJson = (_data) => {
+      res.bigJson = (_body) => {
         // TODO: using stream to handle big data (> 16kb)
       };
       // ============ END define res methods ============

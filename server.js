@@ -14,6 +14,12 @@ server.route("GET", "/scripts.js", (_req, res) => {
   res.status(200).file("./public/scripts.js", "text/javascript");
 });
 
+server.route("POST", "/login", (_req, res) => {
+  res
+    .status(400)
+    .json({ message: "Route haveroute has not been implemented yet" });
+});
+
 server.listen(3002, () => {
   console.log("Server is listening on http://localhost:3002");
 });
