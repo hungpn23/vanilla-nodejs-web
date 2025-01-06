@@ -13,6 +13,9 @@ export const USERS = [
   },
 ];
 
+// { userId: 1, token: "abc123" }
+export const SESSIONS = [];
+
 export const POSTS = [
   {
     id: 1,

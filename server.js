@@ -1,4 +1,4 @@
-import { POSTS, USERS } from "./database.js";
+import { POSTS, SESSIONS, USERS } from "./database.js";
 import { MiniExpress } from "./mini-express.js";
 
 const server = new MiniExpress();
@@ -27,6 +27,8 @@ server.route("GET", "/api/posts", (_req, res) => {
   return res.status(200).json(posts);
 });
 
+server.route("POST", "/api/posts", (req, res) => {});
+
 server.route("POST", "/api/login", (req, res) => {
   let body = "";
   req.on("data", (chunk) => {
@@ -43,13 +45,26 @@ server.route("POST", "/api/login", (req, res) => {
     if (!user)
       return res.status(401).json({ error: "Invalid username or password" });
 
+    const token = Math.floor(Math.random() * 1_000_000).toString();
+    SESSIONS.push({ userId: user.id, token });
+
+    res.setHeader("Set-Cookie", `token=${token}; HttpOnly`);
     return res.status(200).json({ message: "Login successfully" });
   });
 });
 
 server.route("GET", "/api/user", (req, res) => {
-  return res.status(400).json({ message: "method not implemented yet" });
+  const token = req.headers.cookie.split("=")[1];
+  const session = SESSIONS.find((session) => session.token === token);
+
+  if (!session) return res.status(401).json({ error: "Unauthorized" });
+
+  const user = USERS.find((user) => user.id === session.userId);
+
+  return res.status(200).json({ name: user.name, username: user.username });
 });
+
+server.route("DELETE", "/api/logout", (req, res) => {});
 
 server.listen(3002, () => {
   console.log("Server is listening on http://localhost:3002");
