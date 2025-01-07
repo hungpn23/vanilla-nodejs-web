@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 export class MiniExpress {
   #server;
   #routes = {}; // { "METHOD/endpoint": (req, res) => {} }
+  #middlewares = []; // [ (req, res, next) => {} ]
 
   constructor() {
     this.#server = http.createServer();
@@ -40,9 +41,23 @@ export class MiniExpress {
           .json({ error: `Cannot ${req.method} ${req.url}` });
       }
 
-      const cb = this.#routes[req.method + req.url];
-      cb(req, res);
+      // run the middlewares
+      const runMiddleware = (req, res, middlewares, index = 0) => {
+        if (index === middlewares.length) {
+          this.#routes[req.method + req.url](req, res);
+        } else {
+          middlewares[index](req, res, () => {
+            runMiddleware(req, res, middlewares, index + 1);
+          });
+        }
+      };
+
+      runMiddleware(req, res, this.#middlewares);
     });
+  }
+
+  beforeEach(cb) {
+    this.#middlewares.push(cb);
   }
 
   route(method, endpoint, cb) {

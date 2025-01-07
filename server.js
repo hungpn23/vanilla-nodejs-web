@@ -3,8 +3,33 @@ import { MiniExpress } from "./mini-express.js";
 
 const server = new MiniExpress();
 
+// ---------------- MIDDLEWARES ----------------- //
+server.beforeEach((req, res, next) => {
+  console.log("first middleware");
+  next();
+});
+
+server.beforeEach((req, res, next) => {
+  console.log("second middleware");
+  next();
+});
+
+server.beforeEach((req, res, next) => {
+  console.log("third middleware");
+  next();
+});
+
 // ---------------- FILES ROUTES ---------------- //
 server.route("GET", "/", (_req, res) => {
+  console.log("GET /");
+  return res.status(200).file("./public/index.html", "text/html");
+});
+
+server.route("GET", "/login", (_req, res) => {
+  return res.status(200).file("./public/index.html", "text/html");
+});
+
+server.route("GET", "/profile", (_req, res) => {
   return res.status(200).file("./public/index.html", "text/html");
 });
 
@@ -39,7 +64,7 @@ server.route("POST", "/api/login", (req, res) => {
     body = JSON.parse(body);
     const { username, password } = body;
     const user = USERS.find(
-      (user) => user.username === username && user.password === password,
+      (user) => user.username === username && user.password === password
     );
 
     if (!user)
@@ -54,6 +79,7 @@ server.route("POST", "/api/login", (req, res) => {
 });
 
 server.route("GET", "/api/user", (req, res) => {
+  console.log(req.headers);
   const token = req.headers.cookie.split("=")[1];
   const session = SESSIONS.find((session) => session.token === token);
 
@@ -64,8 +90,10 @@ server.route("GET", "/api/user", (req, res) => {
   return res.status(200).json({ name: user.name, username: user.username });
 });
 
+server.route("PUT", "/api/user", (req, res) => {});
+
 server.route("DELETE", "/api/logout", (req, res) => {});
 
-server.listen(3002, () => {
-  console.log("Server is listening on http://localhost:3002");
+server.listen(3000, () => {
+  console.log("Server is listening on http://localhost:3000");
 });
